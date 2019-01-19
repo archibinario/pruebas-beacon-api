@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="https://vjs.zencdn.net/7.4.1/video-js.css" rel="stylesheet">
+</head>
+<body>
+    <p>prueba para testear el envio de minuto actual de un video al cierre de la página usando el <a href="https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API">API Beacon</a>.
+    Este aAPI mola un cojón porque no es bloqueante para el resto de scripts de la página ;)</p>
+    <p>recibido en backend:</p>
+    <pre>
+        { 
+            video_id: 'a_445',
+            user_id: 'token_del_usuario_inyectado_aqui',
+            current_time: '5.310159'
+        }
+    </pre>
+    <br>
+    <br>
+    <video id="my-video" class="video-js" controls preload="auto" poster="197567-131-1645A26E.jpg" data-setup="{}">
+        <source src="prueba-video-multi-audio.mp4" type='video/mp4'>
+        <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a web browser that
+            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+        </p>
+    </video>
+    <script src="https://vjs.zencdn.net/7.4.1/video.js"></script>
+
+
+    <script>
+        let player = document.getElementById('my-video');
+        let url = 'http://localhost:8080/api/v1/my-endpoint';
+        let user_id = 'token_del_usuario_inyectado_aqui';
+
+        if (navigator.sendBeacon) {
+            console.log('API Beacon disponible')
+        } else {
+            console.log('API Beacon no disponible... a tirar de fallback :(')
+        }
+        
+        window.addEventListener('beforeunload', function (event) {
+            let data = new FormData();
+            data.append('video_id', 'a_445')
+            data.append('user_id', user_id)
+            data.append('current_time', player.currentTime);
+            navigator.sendBeacon(url, data);
+
+            // fallback en caso de que el API Beacon no esté disponible
+            /* var xhr = new XMLHttpRequest()
+            xhr.open('post', url, false);
+            xhr.send(data); */
+
+            // tambien se puede usar fetch pero no se recomienda
+            /* fetch('url', {
+                keepalive: true,
+                method: 'POST',
+                body: new FormData()
+            }) */
+        });
+    </script>
+</body>
+</html>
